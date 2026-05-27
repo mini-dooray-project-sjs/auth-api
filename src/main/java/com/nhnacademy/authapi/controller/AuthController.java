@@ -46,6 +46,11 @@ public class AuthController {
     public ResponseEntity<Void> logout(
             @RequestHeader("Authorization") String authHeader
     ) {
+        // Authorization 헤더에서 "Bearer " 접두어를 제거하여 액세스 토큰 추출
+        if(authHeader==null|| !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().build(); // Authorization 헤더가 없거나 "Bearer "로 시작하지 않는 경우 잘못된 요청으로 처리
+        }
+
         String accessToken=authHeader.substring(7); // "Bearer " 접두어 제거
 
         authService.logout(accessToken);
