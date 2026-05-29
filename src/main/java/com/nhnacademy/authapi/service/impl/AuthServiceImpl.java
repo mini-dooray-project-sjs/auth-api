@@ -1,14 +1,14 @@
 package com.nhnacademy.authapi.service.impl;
 
+import com.nhnacademy.authapi.client.UserClient;
 import com.nhnacademy.authapi.config.JwtProperties;
 import com.nhnacademy.authapi.config.JwtProvider;
 import com.nhnacademy.authapi.dto.LoginRequest;
 import com.nhnacademy.authapi.dto.TokenResponse;
-import com.nhnacademy.authapi.entity.User;
+import com.nhnacademy.authapi.dto.UserLoginResponse;
 import com.nhnacademy.authapi.entity.UserStatus;
 import com.nhnacademy.authapi.exception.LoginFailException;
 import com.nhnacademy.authapi.exception.RefreshTokenValidateException;
-import com.nhnacademy.authapi.repository.AuthRepository;
 import com.nhnacademy.authapi.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,31 +32,29 @@ public class AuthServiceImpl implements AuthService {
     private final JwtProperties jwtProperties;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder encoder;
-    private final AuthRepository repository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final UserClient userClient;
 
 
     // 로그인
     @Override
-    public TokenResponse login(
-            LoginRequest req
-    ) {
+    public TokenResponse login(LoginRequest req) {
         // 로그인 요청에서 아이디와 비밀번호 추출
         String userId=req.userId();
         String password=req.password();
 
         // 아이디로 유저 조회
-        User user=repository.findByById(userId);
+        UserLoginResponse resp=userClient.getUser(userId);
 
         // 로그인 실패 조건: 유저가 존재하지 않거나, 비밀번호가 일치하지 않거나, 계정이 활성화되어 있지 않은 경우
-        if(user==null
-                || !encoder.matches(password, user.getPassword())
-                || !Objects.equals(user.getStatus(), UserStatus.ACTIVE)
+        if(resp==null
+                || !encoder.matches(password, resp.password())
+                || !Objects.equals(resp.status(), UserStatus.ACTIVE)
         ) {
             throw new LoginFailException("아이디 또는 비밀번호가 일치하지 않거나, 계정이 활성화되어 있지 않습니다.");
         }
 
-        String role="ROLE_"+user.getRole().toString();
+        String role="ROLE_"+resp.role().toString();
 
         // 로그인 성공 시, JWT 액세스 토큰과 리프레시 토큰 발급
         String accessToken=jwtProvider.createAccessToken(userId, role);
@@ -111,8 +109,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 유저 아이디로 유저 조회 -> 토큰 재발급 시점에 유저의 권한이 변경되었을 수 있으므로, 최신 정보를 조회하여 토큰에 반영
-        User user=repository.findByById(userId);
-        String role="ROLE_"+user.getRole().toString();
+        UserLoginResponse user=userClient.getUser(userId);
+        String role="ROLE_"+user.role().toString();
 
         // 새로운 액세스 토큰과 리프레시 토큰 발급
         String newAccessToken=jwtProvider.createAccessToken(userId, role);
