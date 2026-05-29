@@ -114,14 +114,14 @@ public class AuthServiceImpl implements AuthService {
 
         // 새로운 액세스 토큰과 리프레시 토큰 발급
         String newAccessToken=jwtProvider.createAccessToken(userId, role);
-        String newRefreshToken=jwtProvider.createRefreshToken(userId);
-
-        // Redis에 새로운 리프레시 토큰 저장 (기존 토큰 덮어쓰기)
-        redisTemplate.opsForValue().set(redisKey, newRefreshToken, jwtProperties.getRefreshTokenExpiration(), TimeUnit.MILLISECONDS);
-
-        log.info("리프레시 토큰 재발급 성공. 유저: {}, 새 액세스 토큰: {}, 새 리프레시 토큰: {}", userId, newAccessToken, newRefreshToken);
+//        String newRefreshToken=jwtProvider.createRefreshToken(userId);
+//
+//        // Redis에 새로운 리프레시 토큰 저장 (기존 토큰 덮어쓰기)
+//        redisTemplate.opsForValue().set(redisKey, newRefreshToken, jwtProperties.getRefreshTokenExpiration(), TimeUnit.MILLISECONDS);
+//
+//        log.info("리프레시 토큰 재발급 성공. 유저: {}, 새 액세스 토큰: {}, 새 리프레시 토큰: {}", userId, newAccessToken, newRefreshToken);
 
         // 새로운 토큰을 담은 응답 반환
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return new TokenResponse(newAccessToken, refreshToken);
     }
 }
