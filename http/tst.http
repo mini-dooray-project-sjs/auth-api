@@ -9,4 +9,8 @@ Content-Type: application/json
 
 ### logout
 POST localhost:8083/api/auth/logout
-X-User-Id: admin
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzc3MiLCJpYXQiOjE3Nzk5NTY5OTcsImV4cCI6MTc4MTE2NjU5N30.NCOalW9eVf8rVE-t7Zx1bUw_iV3qyZLlCL2vDGmU6DkhBtMvLh5RQGFY_Vm65WUUoiG0d1oHi7wS0sITj5WFAw
+
+### refresh token
+POST localhost:8083/api/auth/refresh
+refreshToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc3OTk1NDI2OCwiZXhwIjoxNzgxMTYzODY4fQ.JmK2Y0t0c0YGNUdzpOKrhVgoN_dBmVE7OFMnGg7k2lw2YCmWEM86mPi-i0hJ-90aRhn5p8nz2Vp-cVKjhab5ZQ
